@@ -2,7 +2,7 @@
 module tt where
 
 open import Agda.Primitive renaming (_⊔_ to lmax)
-open import Agda.Builtin.Sigma renaming (Σ to _and_)
+open import Agda.Builtin.Sigma renaming (Σ to exists)
 open import Function using (flip; _$_) renaming (_∘_ to _of_)
 
 Rel : Set -> Set1
@@ -17,6 +17,13 @@ record Symmetric {A : Set} (R : Rel A) : Set where
 
 record Transitive {A : Set} (R : Rel A) : Set where
     field trans : (a b c : A) -> (R a b) -> (R b c) -> (R a c)
+
+record Equivalent {A : Set} (R : Rel A) : Set where
+    field
+        {{refl}} : Reflexive {A} R
+        {{sym}} : Symmetric {A} R
+        {{trans}} : Transitive {A} R
+open Equivalent {{...}}
 
 data Top : Set where
     Triv : Top
@@ -75,6 +82,12 @@ I-trans a b c p q = J C q p
 I-transitivity : {A : Set} -> Transitive {A} I
 I-transitivity = record {trans = I-trans}
 
+instance
+    I-equivalence : {A : Set} -> Equivalent {A} I
+    refl {{I-equivalence}} = I-refl
+    sym {{I-equivalence}} = I-sym
+    trans {{I-equivalence}} = I-trans
+
 data _or_ (A : Set) (B : Set) : Set where
     inl : (x : A) -> A or B
     inr : (y : B) -> A or B
@@ -103,7 +116,7 @@ negate (pos (succ n)) = neg n
 negate (neg n) = pos n
 
 addi' : N -> Z -> Z
-addi' n (pos m) = pos $ add n m
+addi' n (pos m) = pos (add n m)
 addi' 0 (neg m) = neg m
 addi' (succ n) (neg 0) = pos n
 addi' (succ n) (neg (succ m)) = addi' n (neg m)
@@ -111,4 +124,10 @@ addi' (succ n) (neg (succ m)) = addi' n (neg m)
 addi : Z -> Z -> Z
 addi (pos n) m = addi' n m
 addi (neg n) (pos m) = addi' m (neg n)
-addi (neg n) (neg m) = neg $ succ $ add n m
+addi (neg n) (neg m) = neg (succ (add n m))
+
+multi : Z -> Z -> Z
+multi (pos n) (pos m) = pos (mult n m)
+multi (pos n) (neg m) = negate (pos (mult n (abs (neg m))))
+multi (neg n) (pos m) = negate (pos (mult (abs (neg n)) m))
+multi (neg n) (neg m) = pos (mult (abs (neg n)) (abs (neg m)))
