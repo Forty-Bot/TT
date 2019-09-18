@@ -84,9 +84,9 @@ I-transitivity = record {trans = I-trans}
 
 instance
     I-equivalence : {A : Set} -> Equivalent {A} I
-    refl {{I-equivalence}} = I-refl
-    sym {{I-equivalence}} = I-sym
-    trans {{I-equivalence}} = I-trans
+    refl {{I-equivalence}} = I-reflexivity
+    sym {{I-equivalence}} = I-symmetry
+    trans {{I-equivalence}} = I-transitivity
 
 data _or_ (A : Set) (B : Set) : Set where
     inl : (x : A) -> A or B
